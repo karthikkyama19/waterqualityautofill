@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import gunicorn
 
-df = pd.read_csv("Water_quality.csv")
+df = pd.read_csv("C:/Users/admin/proj/Water_quality.csv")
 
 params = ['ph', 'Hardness', 'Solids', 'Chloramines', 'Sulfate', 'Conductivity', 'Organic_carbon', 'Trihalomethanes', 'Turbidity']
 filled = []
@@ -38,12 +38,19 @@ def autoFill(parameters: model):
             filled.append(i)
             random_fill = 0
     if(random_fill==1):
-        random = list(df.sample(1).values)
-        return str(random)
+        random = dict()
+        dft = df.sample(1)
+        for i in dft:
+            random[i] = float(dft[i].values[0])
+        cv = {}
+        cv['output'] = random
+        return cv
     else:
         final_df = df
         final_df = final_df.drop("Potability", axis=1)
         for i in filled:
+            if(x[i]==""):
+                continue
             value = round(float(x[i]))-1
             if(value>10):
                 while(value%10!=0):
@@ -53,5 +60,9 @@ def autoFill(parameters: model):
                     value -=value%1000
             final_df = final_df[(final_df[i]>=value) & (final_df[i]<value+upper[i])]
         random = list(final_df.values)
-        return str(random)
-# uvicorn.run(app)
+        out = {}
+        for i in range(len(random)):
+            out[i] = list(random[i])
+        c = {}
+        c['output'] = out
+        return c
